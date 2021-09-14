@@ -4,9 +4,6 @@
 # Dependencies
 node_modules
 
-# Artifacts
-dist
-
 # Ignore package-lock files (only use yarn.lock files)
 package-lock.json
 
