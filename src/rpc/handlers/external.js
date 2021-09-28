@@ -138,7 +138,7 @@ export function pastEvents (request, proxy, wrapper) {
 
           let res = [];
           for (let range of ranges) {
-            const arr = await this.contract.getPastEvents(eventNames[0], range);
+            const arr = await contract.getPastEvents(eventNames[0], range);
             if (arr && arr.length)
               res = res.concat(arr);
           }
