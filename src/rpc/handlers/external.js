@@ -124,7 +124,27 @@ export function pastEvents (request, proxy, wrapper) {
   if (eventNames.length === 1) {
     // Get a specific event or all events unfiltered
     return from(
-      contract.getPastEvents(eventNames[0], eventOptions)
+      new Promise(async resolve => {
+          const options = eventOptions;
+          // console.log("Resolving ", resolve);
+          const ranges = [];
+
+          for (let i = +options.fromBlock; i < +options.toBlock; i += 1024) {
+            ranges.push({ ...options, fromBlock: i, toBlock: (i + 1023) > options.toBlock ? options.toBlock : i + 1023 });
+          }
+
+          // console.log(ranges);
+          // console.log(options);
+
+          let res = [];
+          for (let range of ranges) {
+            const arr = await this.contract.getPastEvents(eventNames[0], range);
+            if (arr && arr.length)
+              res = res.concat(arr);
+          }
+          // console.log(ranges, res);
+          resolve(res);
+        })
     )
   } else {
     // Get all events and filter ourselves
