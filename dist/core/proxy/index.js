@@ -1,13 +1,9 @@
 "use strict";
 
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _rxjs = require("rxjs");
 
@@ -22,10 +18,6 @@ var _events = require("../../utils/events");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 class ContractProxy {
   constructor(address, jsonInterface, web3, {
@@ -51,30 +43,16 @@ class ContractProxy {
     eventNames = (0, _events.getEventNames)(eventNames); // The `from`s only unpack the returned Promises (and not the array inside them!)
 
     if (eventNames.length === 1) {
-      // Get a specific event or all events unfiltered
-      return (0, _rxjs.from)(new Promise(async resolve => {
-        // console.log("Resolving ", resolve);
-        const ranges = [];
-
-        for (let i = +options.fromBlock; i < +options.toBlock; i += 1024) {
-          ranges.push(_objectSpread(_objectSpread({}, options), {}, {
-            fromBlock: i,
-            toBlock: i + 1023 > options.toBlock ? options.toBlock : i + 1023
-          }));
-        } // console.log(ranges);
-        // console.log(options);
+      if (!process.env.PAST_EVENTS_BATCH_SIZE) {
+        return (0, _rxjs.from)(this.contract.getPastEvents(eventNames[0], options));
+      } // Get a specific event or all events unfiltered
 
 
-        let res = [];
-
-        for (let range of ranges) {
-          const arr = await this.contract.getPastEvents(eventNames[0], range);
-          if (arr && arr.length) res = res.concat(arr);
-        } // console.log(ranges, res);
-
-
-        resolve(res);
-      })); // return from(this.contract.getPastEvents(eventNames[0], options));
+      return (0, _rxjs.from)((0, _events.getPastEventsByBatch)({
+        options,
+        contract: this.contract,
+        eventName: eventNames[0]
+      }));
     } else {
       // Get all events and filter ourselves
       return (0, _rxjs.from)(this.contract.getPastEvents('allEvents', options).then(events => events.filter(event => eventNames.includes(event.event))));
