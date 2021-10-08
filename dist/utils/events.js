@@ -39,7 +39,7 @@ async function getPastEventsByBatch({
 
   const opts = _objectSpread({}, options);
 
-  const batchSize = process.env.REACT_APP_PAST_EVENTS_BATCH_SIZE;
+  const batchSize = +process.env.REACT_APP_PAST_EVENTS_BATCH_SIZE;
 
   for (let i = +options.fromBlock; i < +options.toBlock; i += batchSize) {
     opts.fromBlock = i;
