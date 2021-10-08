@@ -27,7 +27,7 @@ function getEventNames(eventNames) {
   }
 
   return eventNames;
-} // get all events by blocks (configured from PAST_EVENTS_BATCH_SIZE environment variable)
+} // get all events by blocks (configured from REACT_APP_PAST_EVENTS_BATCH_SIZE environment variable)
 
 
 async function getPastEventsByBatch({
@@ -39,7 +39,7 @@ async function getPastEventsByBatch({
 
   const opts = _objectSpread({}, options);
 
-  const batchSize = process.env.PAST_EVENTS_BATCH_SIZE;
+  const batchSize = process.env.REACT_APP_PAST_EVENTS_BATCH_SIZE;
 
   for (let i = +options.fromBlock; i < +options.toBlock; i += batchSize) {
     opts.fromBlock = i;

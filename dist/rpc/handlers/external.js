@@ -107,7 +107,7 @@ function pastEvents(request, proxy, wrapper) {
 
   if (eventNames.length === 1) {
     // Get a specific event or all events unfiltered
-    if (!process.env.PAST_EVENTS_BATCH_SIZE) {
+    if (!process.env.REACT_APP_PAST_EVENTS_BATCH_SIZE) {
       return (0, _rxjs.from)(contract.getPastEvents(eventNames[0], eventOptions));
     }
 
