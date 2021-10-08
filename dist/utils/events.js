@@ -51,8 +51,15 @@ async function getPastEventsByBatch({
       opts.toBlock = toBlock;
     }
 
-    const arr = await contract.getPastEvents(eventName, opts);
-    if (arr && arr.length) res = res.concat(arr);
+    try {
+      const arr = await contract.getPastEvents(eventName, opts);
+      if (arr && arr.length) res = res.concat(arr);
+    } catch (error) {
+      const err = _objectSpread({}, error);
+
+      err.message = `Error ${error.name} - at getPastEventsByBatch. option was ${JSON.stringify(opts)}`;
+      throw err;
+    }
   }
 
   return res;
